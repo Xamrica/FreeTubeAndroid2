@@ -73,6 +73,13 @@
           :default-value="enterFullscreenOnDisplayRotate"
           @change="updateEnterFullscreenOnDisplayRotate"
         />
+        <FtToggleSwitch
+          v-if="USING_ANDROID"
+          :label="t('Player Settings.Rotate To Landscape On Fullscreen')"
+          :compact="true"
+          :default-value="rotateToLandscapeOnFullscreen"
+          @change="updateRotateToLandscapeOnFullscreen"
+        />
       </div>
     </div>
     <FtFlexBox>
@@ -278,6 +285,7 @@ const { t } = useI18n()
 
 /** @type {boolean} */
 const USING_ELECTRON = process.env.IS_ELECTRON
+const USING_ANDROID = process.env.IS_ANDROID
 
 /** @type {import('vue').ComputedRef<boolean>} */
 const proxyVideos = computed(() => store.getters.getProxyVideos)
@@ -384,6 +392,16 @@ const enterFullscreenOnDisplayRotate = computed(() => store.getters.getEnterFull
  */
 function updateEnterFullscreenOnDisplayRotate(value) {
   store.dispatch('updateEnterFullscreenOnDisplayRotate', value)
+}
+
+/** @type {import('vue').ComputedRef<boolean>} */
+const rotateToLandscapeOnFullscreen = computed(() => store.getters.getRotateToLandscapeOnFullscreen)
+
+/**
+ * @param {boolean} value
+ */
+function updateRotateToLandscapeOnFullscreen(value) {
+  store.dispatch('updateRotateToLandscapeOnFullscreen', value)
 }
 
 /** @type {import('vue').ComputedRef<string>} */

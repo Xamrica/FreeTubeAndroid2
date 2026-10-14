@@ -392,6 +392,20 @@ class FreeTubeJavaScriptInterface(
     context.state.isInAPrompt = false
   }
 
+  /**
+   * rotates to landscape while in fullscreen if the screen rotation is locked,
+   * the orientation is restored automatically when leaving fullscreen
+   */
+  @JavascriptInterface
+  fun requestLandscapeOrientation() {
+    webView.post {
+      // fullscreen might have already been left by the time this runs
+      if (webView.isFullscreen) {
+        context.requestLandscapeOrientation()
+      }
+    }
+  }
+
   @JavascriptInterface
   fun setScale(scale: Int) {
     webView.setScale(scale / 100.0, context)

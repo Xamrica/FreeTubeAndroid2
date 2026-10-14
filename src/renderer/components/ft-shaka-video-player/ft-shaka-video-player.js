@@ -305,10 +305,9 @@ export default defineComponent({
       })
     })
     onAppPause = () => {
-      try {
-        document.exitFullscreen()
-      } catch {
-        // pass
+      // the native side already exits fullscreen when the app is paused, this is just a fallback
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {})
       }
       ui.configure({
         enableFullscreenOnRotation: false
@@ -2734,6 +2733,15 @@ export default defineComponent({
 
     function fullscreenChangeHandler() {
       nextTick(showOverlayControls)
+
+      if (process.env.IS_ANDROID && document.fullscreenElement && store.getters.getRotateToLandscapeOnFullscreen) {
+        const videoElement = video.value
+        // keep portrait videos (e.g. shorts) in portrait
+        if (videoElement == null || videoElement.videoWidth >= videoElement.videoHeight) {
+          // only rotates if the screen rotation is locked, the orientation is restored when leaving fullscreen
+          android.requestLandscapeOrientation()
+        }
+      }
     }
 
     window.addEventListener('online', onlineHandler)
@@ -2776,7 +2784,7 @@ export default defineComponent({
           updateMediaSessionState(videoElement.paused ? STATE_PAUSED : STATE_PLAYING, Math.floor(videoElement.currentTime * 1000))
         })
         updateBufferInterval = setInterval(() => {
-          if (videoElement.buffered.length == 0) {
+          if (videoElement.buffered.length === 0) {
             updateMediaSessionState(videoElement.paused ? STATE_PAUSED : STATE_BUFFERING, Math.floor(videoElement.currentTime * 1000))
           }
         }, 0)

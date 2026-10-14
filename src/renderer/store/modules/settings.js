@@ -183,6 +183,7 @@ const state = {
   enableSearchSuggestions: true,
   enableSubtitlesByDefault: false,
   enterFullscreenOnDisplayRotate: false,
+  rotateToLandscapeOnFullscreen: true,
   externalLinkHandling: '',
   externalPlayer: '',
   externalPlayerExecutable: '',

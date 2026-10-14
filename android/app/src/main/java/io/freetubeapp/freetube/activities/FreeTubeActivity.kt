@@ -1,8 +1,11 @@
 package io.freetubeapp.freetube.activities
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowManager
 import androidx.activity.addCallback
 import androidx.core.graphics.createBitmap
@@ -15,6 +18,7 @@ import io.freetubeapp.freetube.helpers.hexToColour
 open class FreeTubeActivity: LaunchIntentActivity() {
   private lateinit var windowInsetsControllerCompat: WindowInsetsControllerCompat
   val state = ApplicationState()
+  private var orientationBeforeFullscreen: Int? = null
   val windowInsetsController: WindowInsetsControllerCompat
     get() {
       return windowInsetsControllerCompat
@@ -49,6 +53,29 @@ open class FreeTubeActivity: LaunchIntentActivity() {
           window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
       }
+    }
+  }
+
+  /**
+   * rotates the app to landscape for fullscreen playback if the user has locked the screen rotation in portrait,
+   * the previous orientation is restored by `restoreOrientation`
+   */
+  fun requestLandscapeOrientation() {
+    runOnUiThread {
+      if (orientationBeforeFullscreen != null) return@runOnUiThread
+      val isRotationLocked = Settings.System.getInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 0
+      if (isRotationLocked && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+        orientationBeforeFullscreen = requestedOrientation
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+      }
+    }
+  }
+
+  fun restoreOrientation() {
+    runOnUiThread {
+      val previousOrientation = orientationBeforeFullscreen ?: return@runOnUiThread
+      orientationBeforeFullscreen = null
+      requestedOrientation = previousOrientation
     }
   }
 

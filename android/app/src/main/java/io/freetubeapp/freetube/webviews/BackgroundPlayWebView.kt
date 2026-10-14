@@ -13,4 +13,15 @@ open class BackgroundPlayWebView @JvmOverloads constructor(
     if (visibility != GONE) super.onWindowVisibilityChanged(VISIBLE)
     once = true
   }
+
+  /**
+   * tells chromium that the window is visible, bypassing the background play override
+   *
+   * while a fullscreen custom view is shown, chromium listens to the window visibility of that view instead,
+   * so if the window gets hidden during fullscreen (e.g. the phone is locked) the page stays hidden
+   * (and blank) after rendering is handed back to this web view, since the override above swallows the resume
+   */
+  fun forceWindowVisible() {
+    super.onWindowVisibilityChanged(VISIBLE)
+  }
 }

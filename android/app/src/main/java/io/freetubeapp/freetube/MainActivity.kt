@@ -77,12 +77,18 @@ class MainActivity: FreeTubeActivity() {
   override fun onPause() {
     super.onPause()
     state.paused = true
+    // leave fullscreen synchronously while the window is still visible,
+    // if it happens after the window is hidden, the page can stay hidden (blank) after resuming
+    webView.exitFullscreen()
     webView.dispatchEvent("app-pause")
   }
 
   override fun onResume() {
     super.onResume()
     state.paused = false
+    // recover from the page having been marked as hidden while the app was in the background
+    webView.forceWindowVisible()
+    webView.invalidate()
     webView.dispatchEvent("app-resume")
   }
 

@@ -30,3 +30,6 @@ assets/
 lefthook-local.yml
 *.bak
 locale-errors.json
+
+# local build toolchain (node, jdk, android sdk)
+.tools/

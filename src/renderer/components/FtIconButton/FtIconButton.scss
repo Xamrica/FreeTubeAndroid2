@@ -204,11 +204,22 @@
   }
 
   .listItemDivider {
-    border-block-start: 1px solid var(--tertiary-text-color);
-    margin-block: 1px;
+    // the divider takes up no space and ignores taps,
+    // so there is no gap between two options where a tap selects neither of them
+    block-size: 0;
+    pointer-events: none;
+    position: relative;
     margin-inline: auto;
     // Too "visible" with current color
     opacity: 0.5;
     inline-size: 95%;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline: 0;
+      border-block-start: 1px solid var(--tertiary-text-color);
+    }
   }
 }

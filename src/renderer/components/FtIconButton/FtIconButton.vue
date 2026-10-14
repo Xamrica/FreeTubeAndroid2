@@ -44,24 +44,35 @@
             class="list"
             role="listbox"
           >
-            <li
+            <template
               v-for="(option, index) in dropdownOptions"
-              :id="id + '-' + index"
               :key="index"
-              role="option"
-              :aria-selected="option.active"
-              tabindex="-1"
-              :class="{
-                listItemDivider: option.type === 'divider',
-                listItem: option.type !== 'divider',
-                active: option.active
-              }"
-              @click="handleDropdownClick(option.value)"
-              @keydown.enter="handleDropdownClick(option.value)"
-              @keydown.space="handleDropdownClick(option.value)"
             >
-              {{ option.type === 'divider' ? '' : option.label }}
-            </li>
+              <!-- dividers must not have click handlers or be focusable,
+              otherwise touch adjustment snaps taps between two options onto the divider -->
+              <li
+                v-if="option.type === 'divider'"
+                :id="id + '-' + index"
+                role="separator"
+                class="listItemDivider"
+              />
+              <li
+                v-else
+                :id="id + '-' + index"
+                role="option"
+                :aria-selected="option.active"
+                tabindex="-1"
+                class="listItem"
+                :class="{
+                  active: option.active
+                }"
+                @click="handleDropdownClick(option.value)"
+                @keydown.enter="handleDropdownClick(option.value)"
+                @keydown.space="handleDropdownClick(option.value)"
+              >
+                {{ option.label }}
+              </li>
+            </template>
           </ul>
         </slot>
       </FtPrompt>
@@ -85,30 +96,41 @@
             class="list"
             role="listbox"
           >
-            <li
+            <template
               v-for="(option, index) in dropdownOptions"
-              :id="id + index"
               :key="index"
-              :role="option.type === 'divider' ? 'separator' : 'option'"
-              :aria-selected="option.active"
-              :tabindex="option.type === 'divider' ? '-1' : '0'"
-              :class="{
-                listItemDivider: option.type === 'divider',
-                listItem: option.type !== 'divider',
-                active: option.active
-              }"
-              @click="handleDropdownClick(option.value)"
-              @keydown.enter="handleDropdownClick(option.value)"
-              @keydown.space="handleDropdownClick(option.value)"
             >
-              <div class="checkmarkColumn">
-                <FontAwesomeIcon
-                  v-if="option.active"
-                  :icon="['fas', 'check']"
-                />
-              </div>
-              {{ option.type === 'divider' ? '' : option.label }}
-            </li>
+              <!-- dividers must not have click handlers or be focusable,
+              otherwise touch adjustment snaps taps between two options onto the divider -->
+              <li
+                v-if="option.type === 'divider'"
+                :id="id + index"
+                role="separator"
+                class="listItemDivider"
+              />
+              <li
+                v-else
+                :id="id + index"
+                role="option"
+                :aria-selected="option.active"
+                tabindex="0"
+                class="listItem"
+                :class="{
+                  active: option.active
+                }"
+                @click="handleDropdownClick(option.value)"
+                @keydown.enter="handleDropdownClick(option.value)"
+                @keydown.space="handleDropdownClick(option.value)"
+              >
+                <div class="checkmarkColumn">
+                  <FontAwesomeIcon
+                    v-if="option.active"
+                    :icon="['fas', 'check']"
+                  />
+                </div>
+                {{ option.label }}
+              </li>
+            </template>
           </ul>
         </slot>
       </div>

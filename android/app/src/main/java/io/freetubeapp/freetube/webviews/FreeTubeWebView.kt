@@ -8,6 +8,7 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -25,6 +26,13 @@ import org.json.JSONObject
 class FreeTubeWebView (
   context: FreeTubeActivity
 ) : BackgroundPlayWebView(context, null) {
+  private val activity = context
+  private var fullscreenView: View? = null
+  private var fullscreenViewCallback: WebChromeClient.CustomViewCallback? = null
+  val isFullscreen: Boolean
+    get() {
+      return fullscreenView != null
+    }
   private val windowInsetsControllerWrapper = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && windowInsetsController != null) {
     WindowInsetsControllerWrapper(windowInsetsController)
   } else {
@@ -81,7 +89,6 @@ class FreeTubeWebView (
       }
     }
 
-    var fullscreenView: View? = null
     webChromeClient = object: ConsoleLogChromeClient({ message ->
       onConsoleMessage(message)
     }) {
@@ -97,20 +104,48 @@ class FreeTubeWebView (
 
           viewGroup.addView(view)
           fullscreenView = view
+          fullscreenViewCallback = callback
           dispatchEvent("start-fullscreen")
         }
       }
 
       override fun onHideCustomView() {
-        val viewGroup = (parent as ViewGroup)
-
-        // show system ui
-        viewGroup.fitsSystemWindows = true
-        windowInsetsControllerWrapper.show(WindowInsetsCompat.Type.systemBars())
-
-        viewGroup.removeView(fullscreenView)
-        dispatchEvent("end-fullscreen")
+        hideFullscreenView()
       }
+    }
+  }
+
+  /**
+   * exits fullscreen immediately on the native side,
+   * instead of waiting for the page to call `document.exitFullscreen()`
+   */
+  fun exitFullscreen() {
+    if (fullscreenView == null) return
+    // ask chromium to leave fullscreen, this usually calls `onHideCustomView` right away
+    fullscreenViewCallback?.onCustomViewHidden()
+    // clean up in case chromium didn't
+    hideFullscreenView()
+  }
+
+  private fun hideFullscreenView() {
+    val view = fullscreenView ?: return
+    fullscreenView = null
+    fullscreenViewCallback = null
+
+    val viewGroup = (parent as ViewGroup)
+
+    // show system ui
+    viewGroup.fitsSystemWindows = true
+    windowInsetsControllerWrapper.show(WindowInsetsCompat.Type.systemBars())
+
+    viewGroup.removeView(view)
+    activity.restoreOrientation()
+    dispatchEvent("end-fullscreen")
+
+    // rendering is handed back to this view, make sure chromium doesn't consider the page hidden
+    post {
+      forceWindowVisible()
+      invalidate()
     }
   }
 

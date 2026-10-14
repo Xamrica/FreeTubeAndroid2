@@ -16,7 +16,7 @@ export function getConsoleLogs() {
   return JSON.parse(android.getLogs())
 }
 
-const REPO_ID = 'MarmadileManteater/FreetubeAndroid'
+const REPO_ID = 'Xamrica/FreeTubeAndroid2'
 
 /**
  * @typedef ChangeLog
@@ -60,6 +60,12 @@ export async function getUpdateInfo() {
 
     if (!isNightly) {
       const latestRelease = updatesJSON[0]
+      if (latestRelease == null) {
+        // the repository doesn't have any releases yet
+        return {
+          updateAvailable: false
+        }
+      }
       const tagName = latestRelease.tag_name
       currentVersion = packageDetails.version
       latestVersion = tagName
