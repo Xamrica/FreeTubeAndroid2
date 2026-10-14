@@ -1,3 +1,13 @@
+# FreeTubeAndroid2
+
+> [!NOTE]
+> This is a vibecoded fork of [FreeTubeAndroid](https://github.com/MarmadileManteater/FreeTubeAndroid) with some additional fixes and features.
+> See the [release notes](https://github.com/Xamrica/FreeTubeAndroid2/releases) for the changes.
+>
+> The original README follows below.
+
+---
+
 <p align="center" >
  <img src="https://docs.freetubeapp.io/images/logoColor.png" width=500 align="center" alt="FreeTube Logo">
 </p>
