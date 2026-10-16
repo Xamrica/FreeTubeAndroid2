@@ -3,6 +3,7 @@ package io.freetubeapp.freetube.webviews
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -27,6 +28,12 @@ class BotGuardWebView @JvmOverloads constructor(
       settings.allowUniversalAccessFromFileURLs = true
       addJavascriptInterface(jsInterface, "Android")
       webViewClient = object : WebViewClient() {
+        override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+          // returning false would make android kill the whole app, the main web view takes care of recovering
+          destroy()
+          return true
+        }
+
         override fun shouldInterceptRequest(
           view: WebView?,
           request: WebResourceRequest?

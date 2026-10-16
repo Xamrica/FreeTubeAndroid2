@@ -8,6 +8,7 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -67,6 +68,14 @@ class FreeTubeWebView (
       override fun onPageFinished(view: WebView?, url: String?) {
         context.state.currentPage = url
         super.onPageFinished(view, url)
+      }
+      override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+        // the renderer crashed or was killed by the system (e.g. to reclaim memory while the app was in the background),
+        // returning false would make android kill the whole app, so start over with a fresh web view instead
+        if (!activity.isFinishing && !activity.isDestroyed) {
+          activity.recreate()
+        }
+        return true
       }
       override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
         if (request?.url?.scheme == "file") {
