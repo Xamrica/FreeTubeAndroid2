@@ -32,7 +32,8 @@ fun getVersionInfo(project: Project): VersionInfo {
     build = numbers[3].toInt()
   }
 
-  val versionCode = major * 10000000 + minor * 10000000 + patch * 1000 + build
+  // major.minor.patch.build -> MMM mm pp bbb (minor and patch < 100, build < 1000)
+  val versionCode = major * 10000000 + minor * 100000 + patch * 1000 + build
 
   return VersionInfo(appName, versionName, versionCode)
 }
