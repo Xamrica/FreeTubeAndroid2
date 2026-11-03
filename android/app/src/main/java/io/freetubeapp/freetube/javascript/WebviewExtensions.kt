@@ -11,7 +11,9 @@ import java.nio.charset.StandardCharsets
  */
 fun WebView.fafJS(js: String) {
   post {
-    loadUrl("javascript: $js")
+    // not `loadUrl("javascript: ...")`, that percent-decodes the script, which lets
+    // data containing sequences like %22 break out of the string literals it was placed in
+    evaluateJavascript(js, null)
   }
 }
 
@@ -19,14 +21,14 @@ fun WebView.fafJS(js: String) {
  * calls `window.dispatchEvent` with just the event name
  */
 fun WebView.dispatchEvent(eventName: String) {
-  fafJS("window.dispatchEvent(new Event(\"$eventName\"))")
+  fafJS("window.dispatchEvent(new Event(${JSONObject.quote(eventName)}))")
 }
 
 /**
  * calls `window.dispatchEvent` with the given JSON assigned to the event which is dispatched
  */
 fun WebView.dispatchEvent(eventName: String, event: JSONObject) {
-  var js = "var tempVar = new Event(\"$eventName\");"
+  var js = "var tempVar = new Event(${JSONObject.quote(eventName)});"
   js += "Object.assign(tempVar, $event);"
   js += "window.dispatchEvent(tempVar);"
   fafJS(js)
@@ -65,7 +67,8 @@ fun WebView.dispatchEvent(eventName: String, keyName: String, data: JSONObject) 
  */
 fun btoa(message: String): String {
   return "atob(\"${String(
-    android.util.Base64.encode(message.toByteArray(), android.util.Base64.DEFAULT),
+    // line breaks aren't allowed inside of the js string literal
+    android.util.Base64.encode(message.toByteArray(), android.util.Base64.NO_WRAP),
     StandardCharsets.UTF_8
   )}\")"
 }

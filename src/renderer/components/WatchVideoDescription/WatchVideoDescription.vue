@@ -115,10 +115,10 @@ if (props.descriptionHtml !== '') {
   // so we need to parse it to see if there is any meaningful text in the html
   // or if it's just empty html elements e.g. `<p></p>`
 
-  const testDiv = document.createElement('div')
-  testDiv.innerHTML = parsed
+  // DOMParser creates an inert document, the HTML is unsanitized here so it mustn't be able to run any code
+  const parsedDocument = new DOMParser().parseFromString(parsed, 'text/html')
 
-  if (!/^\s*$/.test(testDiv.innerText)) {
+  if (!/^\s*$/.test(parsedDocument.body.textContent)) {
     shownDescription = parsed
   }
 } else {
