@@ -23,7 +23,15 @@
 /* select starting stylings ------------------------------ */
 .select {
   position: relative;
+  display: flex;
+  flex-direction: column;
   inline-size: 200px;
+
+  /* together with the size of the label this adds up to 30px, so that the size doesn't depend on the label */
+  margin-block-start: 8px;
+}
+
+.select:not(:has(.select-label)) {
   margin-block-start: 30px;
 }
 
@@ -59,7 +67,9 @@
 
 .iconSelect {
   position: absolute;
-  inset-block-start: 10px;
+
+  /* from the bottom, as the height of the label above the select can vary */
+  inset-block-end: 19px;
   inset-inline-end: 10px;
 
   /* Styling the down arrow */
@@ -79,23 +89,31 @@
 
 .selectTooltip {
   position: absolute;
-  inset-block-start: -22px;
+  inset-block-start: 0;
   inset-inline-end: 10px;
   border-inline-end: 6px solid transparent;
 }
 
 
 /* LABEL ======================================= */
+
+/* Comes after the select in the DOM for the sibling selectors, but has to be displayed above it.
+It's part of the layout, as long labels would otherwise cover the select when they wrap */
 .select-label {
+  order: -1;
   font-size: 18px;
   font-weight: normal;
-  position: absolute;
   display: flex;
   column-gap: 6px;
-  inset-inline-start: 0;
-  inset-block-start: 10px;
+  min-block-size: 20px;
+  margin-block-end: 2px;
   transition: 0.2s ease all;
   color: var(--tertiary-text-color);
+}
+
+/* keep the text of long labels away from the tooltip */
+.select:has(.selectTooltip) .select-label {
+  padding-inline-end: 24px;
 }
 
 .select-icon {
@@ -107,7 +125,6 @@
 .select-text:focus ~ .select-label,
 .select-text:valid ~ .select-label {
   color: var(--accent-color);
-  inset-block-start: -20px;
   transition: 0.2s ease all;
   font-size: 14px;
 }

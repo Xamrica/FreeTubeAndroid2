@@ -1,5 +1,6 @@
 .pure-material-slider {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
   inline-size: 380px;
   color: rgb(var(--primary-text-color) 0.87);
   font-size: 16px;
@@ -11,26 +12,17 @@
 
 .input {
   appearance: none;
-  position: relative;
-  inset-block-start: 24px;
   display: block;
-  margin-block: 0 -36px;
-  margin-inline: 0;
+  margin: 0;
   inline-size: 100%;
   block-size: 36px;
   background-color: transparent;
   cursor: pointer;
 }
 
-/* Without Span */
-.input:last-child {
-  position: static;
-  margin: 0;
-}
-
+/* Comes after the input in the DOM for the `.input:disabled + .label` selector, but has to be displayed above it */
 .label {
-  display: inline-block;
-  margin-block-end: 36px;
+  order: -1;
 }
 /* stylelint-disable-next-line a11y/no-outline-none */
 .input:focus {
