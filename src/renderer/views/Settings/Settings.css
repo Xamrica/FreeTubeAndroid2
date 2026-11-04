@@ -49,6 +49,7 @@
 
   .settingsContent {
     inline-size: 100%;
+    min-inline-size: 0;
   }
 
   .settingsSection {

@@ -12,10 +12,15 @@
   flex-wrap: wrap;
   font-family: Roboto, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   block-size: 100%;
+
+  /* On Android anything wider than the screen widens the whole page, including the fixed navigation bars.
+  Unlike hidden, clip prevents that and doesn't create a scroll container, which would break the sticky elements */
+  overflow-x: clip;
 }
 
 .routerView {
   flex: 1 1 0%;
+  min-inline-size: 0;
   margin-block: 18px;
   margin-inline: 10px;
 }

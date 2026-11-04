@@ -87,6 +87,8 @@
 @media only screen and (width <= 1015px) {
   .settingsMenu {
     inline-size: fit-content;
+    min-inline-size: 0;
+    max-inline-size: 100%;
     margin-inline: auto;
     position: relative;
     inset-block-start: 0;
@@ -95,6 +97,7 @@
   }
 
   .titleIcon {
+    flex-shrink: 0;
     inline-size: 30px;
     block-size: 30px;
     margin-inline-end: 10px;
@@ -102,7 +105,15 @@
 
   .title {
     inline-size: fit-content;
-    max-inline-size: 90vw;
+    max-inline-size: 100%;
+  }
+
+  /* long titles and large system font sizes wouldn't fit on one line */
+  .iconAndTitleText {
+    display: flex;
+    align-items: center;
+    column-gap: 0.25em;
+    white-space: normal;
   }
 
   .header {

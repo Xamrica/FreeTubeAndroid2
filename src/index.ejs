@@ -26,6 +26,12 @@
           return await window.ofetch(...args)
         }
       </script>
+      <style>
+        /* The web view would otherwise only sometimes allow pinch zooming, the UI scale setting changes the size of the app instead */
+        html {
+          touch-action: pan-x pan-y;
+        }
+      </style>
     <% } %>
     <meta charset="utf-8" />
     <meta name="viewport"
