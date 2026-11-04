@@ -50,6 +50,8 @@ class FreeTubeWebView (
     spoofDesktopUserAgent()
     layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT)
     setBackgroundColor(Color.TRANSPARENT)
+    // the overscroll effect stretches the whole web view, including the fixed top and bottom bars
+    overScrollMode = OVER_SCROLL_NEVER
 
     @SuppressLint("SetJavaScriptEnabled")
     settings.javaScriptEnabled = true
