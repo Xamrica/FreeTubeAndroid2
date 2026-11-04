@@ -144,6 +144,11 @@ const router = createRouter({
     }
   ],
   scrollBehavior(to, from, savedPosition) {
+    // Stays on the same page, e.g. the mobile settings sections, which handle the scroll position themselves
+    if (to.fullPath.split('#')[0] === from.fullPath.split('#')[0]) {
+      return false
+    }
+
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (savedPosition !== null) {

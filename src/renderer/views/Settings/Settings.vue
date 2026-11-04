@@ -260,6 +260,8 @@ function handleMounted() {
 
 const sectionRefs = useTemplateRef('sectionRefs')
 
+let menuScrollY = 0
+
 /**
  * @param {string} sectionType
  */
@@ -280,7 +282,16 @@ function navigateToSection(sectionType, forcedMobile = false) {
 
   if ((!isInDesktopView.value) || forcedMobile) {
     pushState(`#${sectionType}`)
+
+    if (settingsSectionTypeOpenInMobile.value === null) {
+      menuScrollY = window.scrollY
+    }
+
     settingsSectionTypeOpenInMobile.value = sectionType
+
+    nextTick(() => {
+      window.scrollTo(0, 0)
+    })
   }
 }
 
@@ -290,9 +301,14 @@ function returnToSettingsMenu() {
   const openSection = settingsSectionTypeOpenInMobile.value
   settingsSectionTypeOpenInMobile.value = null
 
-  // focus the corresponding Settings Menu title
+  if (openSection === null) {
+    return
+  }
+
+  // focus the corresponding Settings Menu title and return to where the user was in the menu
   nextTick(() => {
-    return menuRef.value?.focusLink(openSection)
+    menuRef.value?.focusLink(openSection)
+    window.scrollTo(0, menuScrollY)
   })
 }
 
