@@ -4,7 +4,7 @@
 > This is a vibecoded fork of [FreeTubeAndroid](https://github.com/MarmadileManteater/FreeTubeAndroid) with some additional fixes and features.
 > See the [release notes](https://github.com/Xamrica/FreeTubeAndroid2/releases) for the changes.
 >
-> The original README follows below.
+> Most of this README comes from FreeTubeAndroid.
 
 ---
 
@@ -16,34 +16,22 @@ An open source YouTube player built with privacy in mind.
 </h2>
 
 <p align='center'>
-  <a href='https://github.com/MarmadileManteater/FreeTubeCordova/actions/workflows/buildCordova.yml'>
-    <img alt='Build Status' src='https://github.com/MarmadileManteater/FreeTubeCordova/actions/workflows/buildCordova.yml/badge.svg'>
-  </a>
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.freetubeapp.freetube">
-    <img alt='izzyondroid version' src="https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/io.freetubeapp.freetube">
-  </a>
 <a href="https://hosted.weblate.org/engage/free-tube/">
 <img src="https://hosted.weblate.org/widgets/free-tube/-/svg-badge.svg" alt="Translation status" />
 </a>
 </p>
 <hr>
 <p align="center"><a href="#screenshots">Screenshots</a> &bull; <a href="#how-does-it-work">How does it work?</a> &bull; <a href="#features">Features</a> &bull; <a href="#how-to-build-and-test">Building and testing</a> &bull; <a href="#contributing">Contributing</a> &bull; <a href="#localization">Localization</a> &bull; <a href="#contact">Contact</a> &bull; <a href="#donations">Donate</a> &bull; <a href="#license">License</a></p>
-<p align="center"><a href="https://freetubeapp.io/">Website</a> &bull; <a href="https://blog.freetubeapp.io/">Blog</a> &bull; <a href="https://docs.freetubeapp.io/">Documentation</a> &bull; <a href="https://docs.freetubeapp.io/faq/">FAQ</a> &bull; <a href="https://github.com/FreeTubeApp/FreeTube/discussions">Discussions</a></p>
+<p align="center"><a href="https://freetubeapp.io/">FreeTube website</a> &bull; <a href="https://blog.freetubeapp.io/">FreeTube blog</a> &bull; <a href="https://docs.freetubeapp.io/">FreeTube documentation</a> &bull; <a href="https://docs.freetubeapp.io/faq/">FreeTube FAQ</a></p>
 <hr>
 
-FreeTube Android is an open source YouTube player built with privacy in mind. Use YouTube without advertisements and prevent Google from tracking you with their cookies and JavaScript.
-Available as an APK and as a PWA (progressive web app). FreeTube Android is a fork of [FreeTube](https://www.github.com/FreeTubeApp).
+FreeTubeAndroid2 is an open source YouTube player built with privacy in mind. Use YouTube without advertisements and prevent Google from tracking you with their cookies and JavaScript.
+Each release contains an APK. You can build a PWA (progressive web app) from source. FreeTubeAndroid2 is a fork of [FreeTubeAndroid](https://github.com/MarmadileManteater/FreeTubeAndroid), which is a fork of [FreeTube](https://www.github.com/FreeTubeApp).
 
 > [!NOTE]
-> FreeTube Android is currently in Beta. While it should work well for most users, there are still bugs and missing features that need to be addressed.
+> FreeTubeAndroid2 is currently in Beta. While it should work well for most users, there are still bugs and missing features that need to be addressed.
 
-<p align='center'>
-  <a href='https://apt.izzysoft.de/fdroid/index/apk/io.freetubeapp.freetube'>
-    <img height='100' alt='Get it on IzzyOnDroid' src='https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png'>
-  </a>
-</p>
-
-<p align="center"><a href="https://github.com/MarmadileManteater/FreeTubeCordova/releases">Download FreeTube Android</a></p>
+<p align="center"><a href="https://github.com/Xamrica/FreeTubeAndroid2/releases/latest">Download the APK from GitHub releases</a></p>
 
 <hr>
 
@@ -72,51 +60,40 @@ Go to [FreeTube's Documentation](https://docs.freetubeapp.io/) if you'd like to 
 ## Screenshots
 <img alt="watching video" src="./metadata/en-US/images/phoneScreenshots/1.png" width=300> <img alt="trending videos" src="./metadata/en-US/images/phoneScreenshots/2.png" width=300> <img alt="subscription feed" src="./metadata/en-US/images/phoneScreenshots/3.png" width=300>
 
-
-### Automated Builds (Nightly / Weekly)
-Builds are automatically created from changes to our development branch via [GitHub Actions](https://github.com/MarmadileManteater/FreeTubeCordova/actions/workflows/buildCordova.yml).
-
-The first build with a green check mark is the latest build. You will need to have a GitHub account to download these builds.
-
 ## How to build and test
 ### Commands for the APK
 ```bash
 # 📦 Packs the project using `webpack.android.config.js`
-yarn pack:android
+pnpm run pack:android
 # 🤖 Packs the botguard script
-yarn pack:botGuardScript:android
+pnpm run pack:botGuardScript:android
 # 🚧 for development
-yarn pack:android:dev
+pnpm run pack:android:dev
 ```
 
 > These commands only build the assets necessary for the project located in `android/` to be built. In order to obtain a complete build, you will need to build the project located in `android/` with `gradle`.
 ### Commands for the PWA
 ```bash
 # 🐛 Debugs the project using `webpack.web.config.js`
-yarn dev:web
+pnpm run dev:web
 # 📦 Packs the project using `webpack.web.config.js` 
-yarn pack:web
+pnpm run pack:web
 ```
 
 ### Commands for the PWA Docker Image
 ```bash
 # 💨 Creates and runs the image locally. Add `--platform=linux/arm64` to docker build for ARM64 devices including Apple Silicon
-docker build -t freetubecordova . # Warning, might take a while on Apple Silicon
-docker run --name ftcordova -d -p 8080:80 freetubecordova
-
-# ⬇ Pulls the latest from the Github Container Registry (ghcr.io)
-docker pull ghcr.io/marmadilemanteater/freetubecordova:latest
-# 👟 Runs the image from ghcr.io
-docker run --name ftcordova -d -p 8080:80 ghcr.io/marmadilemanteater/freetubecordova:latest
+docker build -t freetubeandroid2 . # Warning, might take a while on Apple Silicon
+docker run --name freetubeandroid2 -d -p 8080:80 freetubeandroid2
 ```
 ## Contributing
 
-**NOTICE: MOST CHANGES SHOULD PROBABLY BE MADE TO [UPSTREAM](https://www.github.com/freetubeapp/freetube) UNLESS DIRECTLY RELATED TO CORDOVA CODE OR WORKFLOWS.**
+Most changes belong in [upstream FreeTube](https://www.github.com/freetubeapp/freetube) unless they only affect the Android app.
 
 If you like to get your hands dirty and want to contribute, we would love to
 have your help.  Send a pull request and someone will review your code. Please
 follow the [Contribution
-Guidelines](https://github.com/MarmadileManteater/FreeTubeCordova/blob/development/CONTRIBUTING.md)
+Guidelines](https://github.com/Xamrica/FreeTubeAndroid2/blob/development/CONTRIBUTING.md)
 before sending your pull request.
 
 
@@ -125,7 +102,7 @@ before sending your pull request.
 <img src="https://hosted.weblate.org/widgets/free-tube/-/287x66-grey.png" alt="Translation status" />
 </a>
 
-If you'd like to localize FreeTube Android, please send submissions to [FreeTube's weblate](https://hosted.weblate.org/engage/free-tube/).
+If you'd like to localize FreeTubeAndroid2, please send submissions to [FreeTube's weblate](https://hosted.weblate.org/engage/free-tube/).
 
 ## Contact
 If you ever have any questions, feel free to make an issue here on GitHub. 
