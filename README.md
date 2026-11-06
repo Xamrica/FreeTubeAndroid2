@@ -22,7 +22,7 @@ An open source YouTube player built with privacy in mind.
 </p>
 <hr>
 <p align="center"><a href="#screenshots">Screenshots</a> &bull; <a href="#how-does-it-work">How does it work?</a> &bull; <a href="#features">Features</a> &bull; <a href="#how-to-build-and-test">Building and testing</a> &bull; <a href="#localization">Localization</a> &bull; <a href="#contact">Contact</a> &bull; <a href="#donations">Donate</a> &bull; <a href="#license">License</a></p>
-<p align="center"><a href="https://freetubeapp.io/">FreeTube website</a> &bull; <a href="https://blog.freetubeapp.io/">FreeTube blog</a> &bull; <a href="https://docs.freetubeapp.io/">FreeTube documentation</a> &bull; <a href="https://docs.freetubeapp.io/faq/">FreeTube FAQ</a></p>
+<p align="center"><a href="https://freetubeapp.io/">FreeTube website</a> &bull; <a href="https://docs.freetubeapp.io/">FreeTube documentation</a> &bull; <a href="https://docs.freetubeapp.io/faq/">FreeTube FAQ</a> &bull; <a href="https://github.com/Xamrica/FreeTubeAndroid2/issues">Issues</a></p>
 <hr>
 
 FreeTubeAndroid2 is an open source YouTube player built with privacy in mind. Use YouTube without advertisements and prevent Google from tracking you with their cookies and JavaScript.
