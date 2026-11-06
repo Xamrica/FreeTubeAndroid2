@@ -90,6 +90,17 @@
         <span>{{ valueChangeMessage }}</span>
       </div>
     </Transition>
+    <Transition name="fade">
+      <div
+        v-if="tapSeekSeconds !== 0"
+        :key="tapSeekSeconds > 0"
+        class="tapSeekIndicator"
+        :class="tapSeekSeconds > 0 ? 'tapSeekForward' : 'tapSeekBackward'"
+      >
+        <font-awesome-icon :icon="['fas', tapSeekSeconds > 0 ? 'arrow-right' : 'arrow-left']" />
+        <span>{{ `${Math.abs(tapSeekSeconds)}s` }}</span>
+      </div>
+    </Transition>
     <div
       v-if="showOfflineMessage"
       class="offlineWrapper"

@@ -959,6 +959,13 @@ export default defineComponent({
      * @param {boolean} firstTime
      */
     function configureUI(firstTime = false) {
+      // Outside of VR mode, handleControlsContainerTouch handles the taps on touch screens.
+      // In VR mode dragging moves the camera, so the touches have to reach shaka-player.
+      // This doesn't use ui.isMobile(), as the Android app's desktop user agent can make that return false.
+      const config = navigator.maxTouchPoints > 0
+        ? { ...uiConfig.value, seekOnTaps: useVrMode.value }
+        : uiConfig.value
+
       if (firstTime) {
         /** @type {shaka.extern.UIConfiguration} */
         const firstTimeConfig = {
@@ -1019,11 +1026,11 @@ export default defineComponent({
 
         // Combine the config objects so we only need to do one configure call
         // as shaka-player recreates the UI when you call configure
-        Object.assign(firstTimeConfig, uiConfig.value)
+        Object.assign(firstTimeConfig, config)
 
         ui.configure(firstTimeConfig)
       } else {
-        ui.configure(uiConfig.value)
+        ui.configure(config)
       }
     }
 
@@ -1071,14 +1078,193 @@ export default defineComponent({
       }
     }
 
+    const DOUBLE_TAP_WINDOW_MS = 300
+    const TAP_MOVEMENT_TOLERANCE_PX = 10
+    // Double tapping seeks in this share of the player's width on either side and toggles fullscreen in between
+    const DOUBLE_TAP_SEEK_ZONE_WIDTH = 0.3
+    const TAP_SEEK_INDICATOR_DURATION_MS = 1000
+
+    /** The seconds that were seeked by tapping, while the indicator is visible, negative values are backwards */
+    const tapSeekSeconds = ref(0)
+    let tapSeekIndicatorTimeout = null
+
+    /**
+     * The touch that started on the video itself, touches on the visible controls are left to shaka-player.
+     * @type {{ x: number, y: number, isTap: boolean } | null}
+     */
+    let activeTouch = null
+
+    /**
+     * The previous tap on the video, which the next one may be a follow-up to.
+     * @type {{ zone: -1 | 0 | 1, time: number } | null}
+     */
+    let previousTap = null
+
+    /**
+     * @param {number} x
+     * @returns {-1 | 0 | 1} -1 for the left seek zone, 1 for the right seek zone and 0 for the area in between
+     */
+    function getTapZone(x) {
+      const { left, width } = ui.getControls().getControlsContainer().getBoundingClientRect()
+      const position = (x - left) / width
+
+      if (position < DOUBLE_TAP_SEEK_ZONE_WIDTH) {
+        return -1
+      }
+
+      return position > 1 - DOUBLE_TAP_SEEK_ZONE_WIDTH ? 1 : 0
+    }
+
+    /**
+     * Seeks and shows the seconds on the side of the player that was tapped.
+     * They add up as long as the indicator is visible and the direction stays the same.
+     * @param {number} seconds
+     */
+    function seekByTap(seconds) {
+      if (!canSeek()) {
+        return
+      }
+
+      seekBySeconds(seconds, true)
+
+      tapSeekSeconds.value = Math.sign(tapSeekSeconds.value) === Math.sign(seconds)
+        ? tapSeekSeconds.value + seconds
+        : seconds
+
+      clearTimeout(tapSeekIndicatorTimeout)
+      tapSeekIndicatorTimeout = setTimeout(() => {
+        tapSeekSeconds.value = 0
+      }, TAP_SEEK_INDICATOR_DURATION_MS)
+    }
+
+    /**
+     * A single tap shows or hides the controls right away.
+     * Double tapping does the same thing whether the controls are visible or not:
+     * It seeks in the seek zones, with every further tap seeking again, and toggles fullscreen in between them.
+     * @param {number} x
+     * @param {number} time
+     */
+    function handleTap(x, time) {
+      const controls = ui.getControls()
+      const zone = getTapZone(x)
+      const isFollowUpTap = previousTap?.zone === zone && time - previousTap.time < DOUBLE_TAP_WINDOW_MS
+
+      previousTap = { zone, time }
+
+      if (!isFollowUpTap) {
+        if (controls.isOpaque()) {
+          controls.hideUI()
+        } else {
+          controls.showUI()
+        }
+      } else if (zone !== 0) {
+        seekByTap(zone * defaultSkipInterval.value)
+      } else {
+        previousTap = null
+
+        if (controls.isFullScreenSupported()) {
+          controls.toggleFullScreen()
+        }
+      }
+    }
+
+    /**
+     * The panels and spacers of the toolbars don't do anything, so they count as part of the video.
+     * The empty top toolbar for example covers almost a quarter of the player's height, when it isn't in fullscreen.
+     * @param {Element} target
+     */
+    function isOnVisibleControl(target) {
+      return ui.getControls().isOpaque() &&
+        !target.matches('.shaka-spacer, .shaka-top-controls, .shaka-bottom-controls, .shaka-controls-top-button-panel, .shaka-controls-button-panel') &&
+        target.closest('.shaka-no-propagation') !== null
+    }
+
+    /**
+     * @param {TouchEvent | MouseEvent} event
+     */
+    function handleControlsContainerTouch(event) {
+      if (event.type === 'touchstart') {
+        if (activeTouch) {
+          // multi-touch gestures aren't taps
+          activeTouch.isTap = false
+          return
+        }
+
+        const controls = ui.getControls()
+
+        if (
+          video.value.duration &&
+          !controls.anySettingsMenusAreOpen() &&
+          !controls.anyContextMenusAreOpen() &&
+          !isOnVisibleControl(event.target)
+        ) {
+          const { clientX, clientY } = event.touches[0]
+          activeTouch = { x: clientX, y: clientY, isTap: true }
+        }
+
+        return
+      }
+
+      if (!activeTouch) {
+        return
+      }
+
+      switch (event.type) {
+        case 'touchmove': {
+          // stop shaka-player's handlers, which would show the controls and stop their hide timer
+          event.stopPropagation()
+
+          const { clientX, clientY } = event.touches[0]
+
+          if (Math.hypot(clientX - activeTouch.x, clientY - activeTouch.y) > TAP_MOVEMENT_TOLERANCE_PX) {
+            activeTouch.isTap = false
+          }
+          break
+        }
+        case 'touchend': {
+          event.stopPropagation()
+
+          if (event.touches.length === 0) {
+            const { isTap } = activeTouch
+            activeTouch = null
+
+            if (isTap) {
+              // stop the touch from turning into a click on the element below it
+              if (event.cancelable) {
+                event.preventDefault()
+              }
+
+              handleTap(event.changedTouches[0].clientX, event.timeStamp)
+            }
+          }
+          break
+        }
+        case 'touchcancel':
+          activeTouch = null
+          break
+        case 'contextmenu':
+          // a long press
+          activeTouch.isTap = false
+          break
+      }
+    }
+
     function addUICustomizations() {
       /** @type {HTMLDivElement} */
       const controlsContainer = ui.getControls().getControlsContainer()
+      const passiveTouchEvents = ['touchstart', 'touchmove', 'touchcancel', 'contextmenu']
 
       controlsContainer.removeEventListener('wheel', handleControlsContainerWheel)
       controlsContainer.removeEventListener('click', handleControlsContainerClick, true)
+      controlsContainer.removeEventListener('touchend', handleControlsContainerTouch, true)
+      passiveTouchEvents.forEach((type) => controlsContainer.removeEventListener(type, handleControlsContainerTouch, true))
 
       if (!useVrMode.value) {
+        if (navigator.maxTouchPoints > 0) {
+          controlsContainer.addEventListener('touchend', handleControlsContainerTouch, true)
+          passiveTouchEvents.forEach((type) => controlsContainer.addEventListener(type, handleControlsContainerTouch, { capture: true, passive: true }))
+        }
+
         if (videoVolumeMouseScroll.value || videoSkipMouseScroll.value || videoPlaybackRateMouseScroll.value) {
           controlsContainer.addEventListener('wheel', handleControlsContainerWheel)
         }
@@ -3522,6 +3708,7 @@ export default defineComponent({
       valueChangeIcon,
       showValueChangePopup,
       invertValueChangeContentOrder,
+      tapSeekSeconds,
     }
   },
   unmounted: function () {
