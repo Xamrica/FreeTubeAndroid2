@@ -21,15 +21,12 @@ An open source YouTube player built with privacy in mind.
 </a>
 </p>
 <hr>
-<p align="center"><a href="#screenshots">Screenshots</a> &bull; <a href="#how-does-it-work">How does it work?</a> &bull; <a href="#features">Features</a> &bull; <a href="#how-to-build-and-test">Building and testing</a> &bull; <a href="#contributing">Contributing</a> &bull; <a href="#localization">Localization</a> &bull; <a href="#contact">Contact</a> &bull; <a href="#donations">Donate</a> &bull; <a href="#license">License</a></p>
+<p align="center"><a href="#screenshots">Screenshots</a> &bull; <a href="#how-does-it-work">How does it work?</a> &bull; <a href="#features">Features</a> &bull; <a href="#how-to-build-and-test">Building and testing</a> &bull; <a href="#localization">Localization</a> &bull; <a href="#contact">Contact</a> &bull; <a href="#donations">Donate</a> &bull; <a href="#license">License</a></p>
 <p align="center"><a href="https://freetubeapp.io/">FreeTube website</a> &bull; <a href="https://blog.freetubeapp.io/">FreeTube blog</a> &bull; <a href="https://docs.freetubeapp.io/">FreeTube documentation</a> &bull; <a href="https://docs.freetubeapp.io/faq/">FreeTube FAQ</a></p>
 <hr>
 
 FreeTubeAndroid2 is an open source YouTube player built with privacy in mind. Use YouTube without advertisements and prevent Google from tracking you with their cookies and JavaScript.
 Each release contains an APK. You can build a PWA (progressive web app) from source. FreeTubeAndroid2 is a fork of [FreeTubeAndroid](https://github.com/MarmadileManteater/FreeTubeAndroid), which is a fork of [FreeTube](https://www.github.com/FreeTubeApp).
-
-> [!NOTE]
-> FreeTubeAndroid2 is currently in Beta. While it should work well for most users, there are still bugs and missing features that need to be addressed.
 
 <p align="center"><a href="https://github.com/Xamrica/FreeTubeAndroid2/releases/latest">Download the APK from GitHub releases</a></p>
 
@@ -86,17 +83,6 @@ pnpm run pack:web
 docker build -t freetubeandroid2 . # Warning, might take a while on Apple Silicon
 docker run --name freetubeandroid2 -d -p 8080:80 freetubeandroid2
 ```
-## Contributing
-
-Most changes belong in [upstream FreeTube](https://www.github.com/freetubeapp/freetube) unless they only affect the Android app.
-
-If you like to get your hands dirty and want to contribute, we would love to
-have your help.  Send a pull request and someone will review your code. Please
-follow the [Contribution
-Guidelines](https://github.com/Xamrica/FreeTubeAndroid2/blob/development/CONTRIBUTING.md)
-before sending your pull request.
-
-
 ## Localization
 <a href="https://hosted.weblate.org/engage/free-tube/">
 <img src="https://hosted.weblate.org/widgets/free-tube/-/287x66-grey.png" alt="Translation status" />
