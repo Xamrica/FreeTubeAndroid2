@@ -86,6 +86,7 @@ export default defineComponent({
   },
   beforeRouteLeave: async function (to, from, next) {
     this.handleRouteChange()
+    this.exitPersistentFullscreen()
     window.removeEventListener('beforeunload', this.handleWatchProgressAutoSave)
     document.removeEventListener('keydown', this.resetAutoplayInterruptionTimeout)
     document.removeEventListener('click', this.resetAutoplayInterruptionTimeout)
@@ -335,6 +336,14 @@ export default defineComponent({
       return !this.isLoading
     },
 
+    showPlayer() {
+      return !this.isLoading && (!this.isUpcoming || this.playabilityStatus === 'OK') && !this.errorMessage
+    },
+
+    playerMissingAfterLoading() {
+      return !this.isLoading && !this.showPlayer
+    },
+
     chaptersSrc() {
       if (this.videoChapters.length > 0) {
         const vttText = buildChaptersVttFile(this.videoChapters)
@@ -351,6 +360,12 @@ export default defineComponent({
     },
     userPlaylistsReady() {
       this.onMountedDependOnLocalStateLoading()
+    },
+    playerMissingAfterLoading(newValue) {
+      // e.g. the next video is upcoming or failed to load, don't leave the user with a fullscreened error message
+      if (newValue) {
+        this.exitPersistentFullscreen()
+      }
     },
     async thumbnail() {
       if (process.env.IS_ANDROID) {
@@ -2030,34 +2045,51 @@ export default defineComponent({
       this.startNextVideoInPip = uiState.startNextVideoInPip
     },
 
-    async saveWatchProgressForReload() {
-      const timestamp = this.getTimestamp()
-      if (timestamp > 0) {
-        // Reload at the middle should restart at current timestamp
-        try {
-          await this.$router.replace({
-            path: this.$route.path,
-            query: { ...this.$route.query, oneTimeTimestamp: timestamp },
-          })
-        } catch (failure) {
-          if (isNavigationFailure(failure, NavigationFailureType.duplicated)) {
-            // Already on route with same timestamp, allow reloadView to run instead
-          } else {
-            throw failure
-          }
-        }
+    /**
+     * On Android the player fullscreens `.videoAreaMargin` instead of itself, so that the fullscreen survives recreating the player.
+     * As that element outlives the player, the fullscreen has to be exited explicitly when there is no player anymore.
+     */
+    exitPersistentFullscreen() {
+      if (process.env.IS_ANDROID && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {})
       }
     },
 
-    onManualReloadRequested: throttle(async function () {
-      await this.saveWatchProgressForReload()
+    /**
+     * Reloads the view, restarting at the current timestamp
+     */
+    async reloadViewWithWatchProgress() {
+      const timestamp = this.getTimestamp()
+      if (timestamp > 0) {
+        let failure
+        try {
+          failure = await this.$router.replace({
+            path: this.$route.path,
+            query: { ...this.$route.query, oneTimeTimestamp: timestamp },
+          })
+        } catch (error) {
+          failure = error
+        }
+
+        if (failure == null) {
+          // the route changed, so the `$route` watcher already reloads the view
+          return
+        } else if (!isNavigationFailure(failure, NavigationFailureType.duplicated)) {
+          throw failure
+        }
+        // Already on route with same timestamp, allow reloadView to run instead
+      }
+
       await this.reloadView()
+    },
+
+    onManualReloadRequested: throttle(async function () {
+      await this.reloadViewWithWatchProgress()
     }, 1000),
 
     async onSabrReloadRequested() {
       showToast('Reloading player according to SABR request')
-      await this.saveWatchProgressForReload()
-      await this.reloadView()
+      await this.reloadViewWithWatchProgress()
     },
 
     ...mapActions([

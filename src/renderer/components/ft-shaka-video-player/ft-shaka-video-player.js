@@ -1013,6 +1013,13 @@ export default defineComponent({
           // we have our own ones (shaka-player's ones are quite limited)
           enableKeyboardPlaybackControls: false,
 
+          // The Android WebView only allows entering fullscreen after a user gesture, so it can't be restored after the player gets recreated (e.g. SABR reload, next video).
+          // Fullscreening the parent element (`.videoAreaMargin` on the watch page) instead keeps the fullscreen alive while the player gets recreated inside of it.
+          // It has to be a div, as shaka-player rejects elements with a different constructor than its default (the container div).
+          ...(process.env.IS_ANDROID && container.value.parentElement instanceof HTMLDivElement
+            ? { fullScreenElement: container.value.parentElement }
+            : {}),
+
           // TODO: enable this when electron gets document PiP support
           // https://github.com/electron/electron/issues/39633
           documentPictureInPicture: {
@@ -3117,6 +3124,12 @@ export default defineComponent({
 
       controls.addEventListener('uiupdated', addUICustomizations)
       configureUI(true)
+
+      if (controls.isFullScreenEnabled()) {
+        // The player got recreated inside the still fullscreened parent element (see `fullScreenElement` above),
+        // shaka-player's fullscreen button only updates its icon on this event, so it would show the enter fullscreen icon otherwise
+        document.dispatchEvent(new Event('fullscreenchange'))
+      }
 
       document.removeEventListener('keydown', keyboardShortcutHandler)
       document.addEventListener('keydown', keyboardShortcutHandler)

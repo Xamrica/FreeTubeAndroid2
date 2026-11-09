@@ -16,8 +16,13 @@
       class="videoArea"
     >
       <div class="videoAreaMargin">
+        <!-- only visible while this element is fullscreen, the player keeps it fullscreen while reloading on Android -->
+        <ft-loader
+          v-if="isLoading"
+          class="fullscreenLoader"
+        />
         <ft-shaka-video-player
-          v-if="!isLoading && (!isUpcoming || playabilityStatus === 'OK') && !errorMessage"
+          v-if="showPlayer"
           ref="player"
           :manifest-src="manifestSrc"
           :manifest-mime-type="manifestMimeType"

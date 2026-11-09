@@ -226,8 +226,20 @@
   right: 5px;
 }
 
-.ftVideoPlayer:fullscreen :deep(.playerFullscreenTitleOverlay) {
+/* On Android the parent element is fullscreened instead of the player, see `fullScreenElement` in ft-shaka-video-player.js */
+.ftVideoPlayer:fullscreen :deep(.playerFullscreenTitleOverlay),
+:fullscreen > .ftVideoPlayer :deep(.playerFullscreenTitleOverlay) {
   display: block;
+}
+
+/* copied from shaka-player's .shaka-video-container:fullscreen, which doesn't apply when the parent element is fullscreened */
+:fullscreen > .ftVideoPlayer {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+:fullscreen > .ftVideoPlayer :deep(.shaka-text-container) {
+  font-size: 4.4vmin;
 }
 
 :deep(.shaka-controls-container[shown='true'] > .playerFullscreenTitleOverlay) {
@@ -240,6 +252,8 @@
 
 .ftVideoPlayer:fullscreen :deep(.theatre-button),
 .ftVideoPlayer:fullscreen :deep(.full-window-button),
+:fullscreen > .ftVideoPlayer :deep(.theatre-button),
+:fullscreen > .ftVideoPlayer :deep(.full-window-button),
 .fullWindow :deep(.theatre-button) {
   display: none;
 }

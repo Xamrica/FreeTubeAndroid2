@@ -77,6 +77,10 @@
       margin-inline: 0;
     }
 
+    .fullscreenLoader {
+      display: none;
+    }
+
     .videoPlayer {
       grid-column: 1;
       margin-block: 0;
@@ -126,6 +130,22 @@
         .errorIcon {
           font-size: 60px;
         }
+      }
+    }
+
+    /* On Android this element gets fullscreened instead of the player, so that the fullscreen survives recreating the player (see ft-shaka-video-player.js) */
+    .videoAreaMargin:fullscreen {
+      margin: 0;
+      background-color: #000;
+
+      .videoPlayer {
+        max-inline-size: none;
+        inline-size: 100%;
+        block-size: 100%;
+      }
+
+      .fullscreenLoader {
+        display: flex;
       }
     }
   }
